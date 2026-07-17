@@ -3,21 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title></title>
+  <title>Pregunta tonta</title>
+
   <style>
     :root {
       --bg1: #f7d9ff;
       --bg2: #d6f0ff;
-      --card: rgba(255, 255, 255, 0.95);
+      --card: rgba(255, 255, 255, 0.96);
       --text: #222;
       --yes: #37c978;
       --no: #ff5f6d;
       --shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       width: 100%;
       height: 100%;
@@ -36,14 +40,14 @@
 
     .card {
       width: min(92vw, 460px);
-      padding: 36px 26px;
+      padding: 36px 26px 26px;
       background: var(--card);
       border-radius: 26px;
       box-shadow: var(--shadow);
       text-align: center;
-      backdrop-filter: blur(8px);
       position: relative;
       z-index: 2;
+      backdrop-filter: blur(8px);
     }
 
     h1 {
@@ -53,12 +57,11 @@
     }
 
     .buttons {
+      height: 76px;
       display: flex;
       justify-content: center;
-      gap: 18px;
       align-items: center;
-      position: relative;
-      min-height: 72px;
+      gap: 18px;
     }
 
     button {
@@ -68,10 +71,9 @@
       font-weight: 700;
       border-radius: 999px;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
       user-select: none;
       -webkit-user-select: none;
-      position: relative;
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
     }
 
     button:active {
@@ -80,25 +82,45 @@
 
     #yesBtn {
       background: var(--yes);
-      color: white;
+      color: #fff;
       box-shadow: 0 10px 20px rgba(55, 201, 120, 0.28);
     }
 
-    #noBtn {
-      background: var(--no);
-      color: white;
-      box-shadow: 0 10px 20px rgba(255, 95, 109, 0.22);
-      /* Cambia esta constante en el JS: "jump" o "smooth" */
+    #yesBtn:hover {
+      transform: scale(1.05);
     }
 
-    #yesBtn:hover, #noBtn:hover {
+    /*
+      Importante:
+      El botón NO está fijo desde el principio.
+      Así evitamos el bug de que desaparezca al cambiar de position: relative a fixed.
+    */
+    #noBtn {
+      background: var(--no);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 95, 109, 0.22);
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 50;
+      visibility: hidden;
+      transition: none;
+    }
+
+    #noBtn:hover {
       transform: scale(1.05);
+    }
+
+    .hint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
     }
 
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.40);
+      background: rgba(0, 0, 0, 0.4);
       display: none;
       align-items: center;
       justify-content: center;
@@ -112,13 +134,11 @@
 
     .popup {
       width: min(92vw, 420px);
-      background: white;
+      background: #fff;
       border-radius: 26px;
       box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
       text-align: center;
       padding: 34px 24px 26px;
-      position: relative;
-      overflow: hidden;
       animation: pop 0.22s ease;
     }
 
@@ -136,13 +156,20 @@
 
     .popup button {
       background: var(--yes);
-      color: white;
+      color: #fff;
       box-shadow: 0 10px 20px rgba(55, 201, 120, 0.25);
     }
 
     @keyframes pop {
-      from { transform: scale(0.85); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
+      from {
+        transform: scale(0.85);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .confetti {
@@ -163,40 +190,146 @@
       }
     }
 
-    .hint {
-      margin-top: 14px;
-      font-size: 12px;
-      color: rgba(0,0,0,0.45);
+    @media (max-width: 420px) {
+      .card {
+        padding: 30px 18px 22px;
+      }
+
+      .buttons {
+        gap: 12px;
+        height: 72px;
+      }
+
+      button {
+        padding: 13px 22px;
+        font-size: 17px;
+      }
     }
   </style>
 </head>
+
 <body>
   <main class="card" aria-label="Pregunta principal">
-    <h1>¿Quieres verme hoy?</h1>
+    <h1>¿Quieres continuar?</h1>
+
     <div class="buttons">
       <button id="yesBtn" type="button">Sí</button>
-      <button id="noBtn" type="button">No</button>
     </div>
+
+    <div class="hint">Funciona en móvil y ordenador</div>
   </main>
+
+  <button id="noBtn" type="button">No</button>
 
   <section class="overlay" id="overlay" aria-hidden="true">
     <div class="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
       <h2 id="popupTitle">🎉 Enhorabuena</h2>
-      <p>Pues yo no :)</p>
+      <p>Has dicho que sí</p>
       <button id="closeBtn" type="button">Cerrar</button>
     </div>
   </section>
 
   <script>
-    const NO_MODE = "jump"; // cambia a "smooth" si quieres que el no se desplace suave
-
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const overlay = document.getElementById("overlay");
     const closeBtn = document.getElementById("closeBtn");
 
-    let noFreed = false;
-    let noAnimating = false;
+    const PADDING = 14;
+    const DESKTOP_TRIGGER_DISTANCE = 145;
+    const TOUCH_TRIGGER_DISTANCE = 170;
+    const JUMP_COOLDOWN_MS = 90;
+
+    let noX = 0;
+    let noY = 0;
+    let lastJumpAt = 0;
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getNoSize() {
+      return {
+        width: noBtn.offsetWidth || 70,
+        height: noBtn.offsetHeight || 50
+      };
+    }
+
+    function setNoPosition(x, y) {
+      const size = getNoSize();
+
+      const maxX = Math.max(PADDING, window.innerWidth - size.width - PADDING);
+      const maxY = Math.max(PADDING, window.innerHeight - size.height - PADDING);
+
+      noX = clamp(x, PADDING, maxX);
+      noY = clamp(y, PADDING, maxY);
+
+      noBtn.style.left = noX + "px";
+      noBtn.style.top = noY + "px";
+      noBtn.style.visibility = "visible";
+    }
+
+    function randomPositionAwayFrom(pointerX, pointerY) {
+      const size = getNoSize();
+      const maxX = Math.max(PADDING, window.innerWidth - size.width - PADDING);
+      const maxY = Math.max(PADDING, window.innerHeight - size.height - PADDING);
+
+      let bestX = PADDING;
+      let bestY = PADDING;
+      let bestDistance = -1;
+
+      /*
+        Probamos varias posiciones aleatorias y elegimos la más alejada del puntero.
+        Así nunca se sale de la pantalla y no desaparece.
+      */
+      for (let i = 0; i < 24; i++) {
+        const candidateX = PADDING + Math.random() * Math.max(1, maxX - PADDING);
+        const candidateY = PADDING + Math.random() * Math.max(1, maxY - PADDING);
+
+        const candidateCenterX = candidateX + size.width / 2;
+        const candidateCenterY = candidateY + size.height / 2;
+        const distance = Math.hypot(candidateCenterX - pointerX, candidateCenterY - pointerY);
+
+        if (distance > bestDistance) {
+          bestDistance = distance;
+          bestX = candidateX;
+          bestY = candidateY;
+        }
+      }
+
+      return { x: bestX, y: bestY };
+    }
+
+    function jumpNoButton(pointerX, pointerY) {
+      const now = Date.now();
+
+      if (now - lastJumpAt < JUMP_COOLDOWN_MS) {
+        return;
+      }
+
+      lastJumpAt = now;
+
+      const next = randomPositionAwayFrom(pointerX, pointerY);
+      setNoPosition(next.x, next.y);
+    }
+
+    function distanceToNoButton(pointerX, pointerY) {
+      const size = getNoSize();
+      const centerX = noX + size.width / 2;
+      const centerY = noY + size.height / 2;
+
+      return Math.hypot(pointerX - centerX, pointerY - centerY);
+    }
+
+    function placeNoButtonAtStart() {
+      const yesRect = yesBtn.getBoundingClientRect();
+      const size = getNoSize();
+
+      const startX = yesRect.right + 18;
+      const startY = yesRect.top + (yesRect.height - size.height) / 2;
+
+      setNoPosition(startX, startY);
+    }
 
     function showPopup() {
       overlay.classList.add("active");
@@ -210,131 +343,57 @@
     }
 
     yesBtn.addEventListener("click", showPopup);
+
     closeBtn.addEventListener("click", hidePopup);
-    overlay.addEventListener("click", (e) => {
-      if (e.target === overlay) hidePopup();
-    });
 
-    function releaseNoButton() {
-      if (noFreed) return;
-
-      const rect = noBtn.getBoundingClientRect();
-      noBtn.style.position = "fixed";
-      noBtn.style.left = rect.left + "px";
-      noBtn.style.top = rect.top + "px";
-      noBtn.style.margin = "0";
-      noBtn.style.zIndex = "998";
-      noFreed = true;
-
-      if (NO_MODE === "smooth") {
-        noBtn.style.transition = "left 180ms ease, top 180ms ease, transform 150ms ease";
-      } else {
-        noBtn.style.transition = "none";
-      }
-    }
-
-    function randomSafePosition(rect) {
-      const pad = 12;
-      const maxLeft = Math.max(pad, window.innerWidth - rect.width - pad);
-      const maxTop = Math.max(pad, window.innerHeight - rect.height - pad);
-      const left = pad + Math.random() * Math.max(0, maxLeft - pad);
-      const top = pad + Math.random() * Math.max(0, maxTop - pad);
-      return { left, top };
-    }
-
-    function moveNoButton(clientX, clientY) {
-      releaseNoButton();
-      if (noAnimating && NO_MODE === "smooth") return;
-
-      const rect = noBtn.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      let left, top;
-
-      if (NO_MODE === "jump") {
-        ({ left, top } = randomSafePosition(rect));
-      } else {
-        let dx = centerX - clientX;
-        let dy = centerY - clientY;
-        const dist = Math.hypot(dx, dy) || 1;
-        dx /= dist;
-        dy /= dist;
-
-        const push = 170;
-        const randX = (Math.random() - 0.5) * 140;
-        const randY = (Math.random() - 0.5) * 140;
-
-        left = rect.left + dx * push + randX;
-        top = rect.top + dy * push + randY;
-
-        const pad = 12;
-        left = Math.max(pad, Math.min(window.innerWidth - rect.width - pad, left));
-        top = Math.max(pad, Math.min(window.innerHeight - rect.height - pad, top));
-      }
-
-      noAnimating = true;
-      noBtn.style.left = left + "px";
-      noBtn.style.top = top + "px";
-
-      setTimeout(() => {
-        noAnimating = false;
-      }, NO_MODE === "smooth" ? 180 : 0);
-    }
-
-    // Escritorio
-    document.addEventListener("mousemove", (e) => {
-      const rect = noBtn.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const distance = Math.hypot(e.clientX - cx, e.clientY - cy);
-
-      if (distance < 140) {
-        moveNoButton(e.clientX, e.clientY);
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        hidePopup();
       }
     });
 
-    // Móvil / tablet / stylus
-    document.addEventListener("pointermove", (e) => {
-      if (e.pointerType !== "touch") return;
+    document.addEventListener("mousemove", (event) => {
+      if (distanceToNoButton(event.clientX, event.clientY) < DESKTOP_TRIGGER_DISTANCE) {
+        jumpNoButton(event.clientX, event.clientY);
+      }
+    });
 
-      const rect = noBtn.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const distance = Math.hypot(e.clientX - cx, e.clientY - cy);
+    document.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "touch") return;
 
-      if (distance < 160) {
-        moveNoButton(e.clientX, e.clientY);
+      if (distanceToNoButton(event.clientX, event.clientY) < TOUCH_TRIGGER_DISTANCE) {
+        jumpNoButton(event.clientX, event.clientY);
       }
     }, { passive: true });
 
-    noBtn.addEventListener("mouseenter", (e) => {
-      moveNoButton(e.clientX, e.clientY);
+    noBtn.addEventListener("mouseenter", (event) => {
+      jumpNoButton(event.clientX, event.clientY);
     });
 
-    noBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      moveNoButton(e.clientX, e.clientY);
+    noBtn.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      jumpNoButton(event.clientX, event.clientY);
     });
 
-    noBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      moveNoButton(e.clientX, e.clientY);
+    noBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      jumpNoButton(event.clientX, event.clientY);
     });
 
     window.addEventListener("resize", () => {
-      if (!noFreed) return;
-      const rect = noBtn.getBoundingClientRect();
-      const pad = 12;
-      const left = Math.max(pad, Math.min(window.innerWidth - rect.width - pad, rect.left));
-      const top = Math.max(pad, Math.min(window.innerHeight - rect.height - pad, rect.top));
-      noBtn.style.left = left + "px";
-      noBtn.style.top = top + "px";
+      setNoPosition(noX, noY);
     });
+
+    window.addEventListener("load", placeNoButtonAtStart);
+
+    /*
+      Por si el navegador ya ha cargado antes de llegar aquí.
+    */
+    requestAnimationFrame(placeNoButtonAtStart);
 
     function createConfetti() {
       const colors = ["#ff5f6d", "#37c978", "#ffd166", "#8e7dff", "#2ec4ff"];
-      const count = 36;
+      const count = 40;
 
       for (let i = 0; i < count; i++) {
         const piece = document.createElement("div");
@@ -342,11 +401,14 @@
         piece.style.left = Math.random() * 100 + "vw";
         piece.style.background = colors[Math.floor(Math.random() * colors.length)];
         piece.style.animationDuration = (2.5 + Math.random() * 1.8) + "s";
-        piece.style.animationDelay = (Math.random() * 0.2) + "s";
-        piece.style.transform = `translateY(0) rotate(${Math.random() * 360}deg)`;
+        piece.style.animationDelay = Math.random() * 0.2 + "s";
+        piece.style.transform = "translateY(0) rotate(" + Math.random() * 360 + "deg)";
+
         document.body.appendChild(piece);
 
-        setTimeout(() => piece.remove(), 5000);
+        setTimeout(() => {
+          piece.remove();
+        }, 5000);
       }
     }
   </script>
